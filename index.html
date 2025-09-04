@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Local Model Chat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      body{font-family:system-ui;max-width:720px;margin:32px auto;padding:0 16px}
+      textarea{width:100%;height:120px}
+      pre{background:#111;color:#eee;padding:12px;border-radius:8px;white-space:pre-wrap}
+      button{padding:8px 12px;margin-top:8px}
+    </style>
+  </head>
+  <body>
+    <h2>Local Model Chat</h2>
+    <a href="/login">Login</a>
+
+    <h3>Chat</h3>
+    <form id="chat-form">
+      <input id="model" value="your-local-model-name">
+      <br><br>
+      <textarea id="prompt" placeholder="Say something..."></textarea>
+      <br>
+      <button>Send</button>
+    </form>
+    <pre id="out"></pre>
+
+    <script>
+      document.getElementById('chat-form').addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        const model = document.getElementById('model').value;
+        const msg = document.getElementById('prompt').value;
+        const r = await fetch('/v1/chat/completions', {
+          method:'POST',
+          headers:{'content-type':'application/json'},
+          body:JSON.stringify({
+            model,
+            messages:[{role:'user',content:msg}],
+            stream:false
+          })
+        });
+        document.getElementById('out').textContent = r.ok
+          ? JSON.stringify(await r.json(),null,2)
+          : "Error "+r.status+": "+await r.text();
+      });
+    </script>
+  </body>
+</html>
